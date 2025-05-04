@@ -1,23 +1,54 @@
 import './App.css';
 import { useEffect, useState } from 'react';
-import { AutoComplete, Button } from 'antd';
+import { AutoComplete, Button, Result } from 'antd';
 
 const DATABASE = [
-    {name: "幻舞玲珑 公孙离", type: "射手"},
-    {name: "肃归之戈 大司命", type: "战士"}
+    {name: "幻舞玲珑 公孙离", type: ["射手"], position: "发育路"},
+    {name: "肃归之戈 大司命", type: ["战士"], position: "对抗路"},
 ]
 
 const NAMES = DATABASE.map(item => item.name);
 
+const ANSWER_TYPES = {
+    correct: 1,
+    smaller: 2,
+    bigger: 3,
+    wrong: 4,
+    partly: 5,
+}
+
+function list_compare(guess, answer) {
+    let a = guess.sort();
+    let b = answer.sort();
+}
+
 function App() {
+    const [answer, setAnswer] = useState("");
+    const [guess, setGuess] = useState("");
+    const [result, setResult] = useState([]);
+    const [isCorrect, setIsCorrect] = useState(false);
+
     useEffect(() => {
         document.title = "王者荣耀英雄猜猜猜"
+        setAnswer(DATABASE[Math.floor(Math.random() * DATABASE.length)].name);
     })
-    const [guess, setGuess] = useState("");
 
     const handleGuess = () => {
-        if (NAMES.find(name => name === guess) !== -1) {
-            
+        let g = DATABASE.find(item => item.name === guess);
+        if (g !== undefined) {
+            if (g.name === answer) {
+                setIsCorrect(true);
+            } else {
+                setResult((prev) => {
+                    let r = {
+                        name: {text: g.name, type: ANSWER_TYPES.wrong},
+                        type: {text: g.type, type: list_compare(g.position, answer.position) },
+                    }
+                    return [...prev, r];
+                })
+            }
+        } else {
+            alert("没有这个英雄哦~");
         }
     }
     
